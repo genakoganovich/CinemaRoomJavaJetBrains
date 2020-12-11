@@ -27,7 +27,7 @@ public class Cinema {
 //            System.out.println();
 //        }
 
-        // initialize variables commit 2
+        // initialize variables commit 3
         int income = 0;
         Scanner scanner = new Scanner(System.in);
 
