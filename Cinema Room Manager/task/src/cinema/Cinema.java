@@ -10,35 +10,28 @@ public class Cinema {
     public static final int SMALL_ROOM_PRICE = 10;
     public static final int LARGE_ROOM_FRONT_PRICE = 10;
     public static final int LARGE_ROOM_BACK_PRICE = 8;
+    public static int income = 0;
+    public static int rows = 0;
+    public static int seats = 0;
+    public static int purchasedTickets = 0;
+    public static char[][] scheme;
 
     public static void main(String[] args) {
-        // initialize variables
-        int income = 0;
-        int rowNumber = 0;
-        int seatNumber = 0;
-        int ticketPrice = 0;
-        int rows = 0;
-        int seats = 0;
-        int choice = 0;
-        char[][] scheme;
-
         Scanner scanner = new Scanner(System.in);
         rows = getUserAnswer(scanner, "Enter the number of rows:");
         seats = getUserAnswer(scanner, "Enter the number of seats in each row:");
         scheme = createScheme(rows, seats);
 
+        int choice = 0;
         do {
             printMenu();
             choice = scanner.nextInt();
             if (choice == 1) {
                 printScheme(scheme);
             } else if (choice == 2) {
-                System.out.println();
-                rowNumber = getUserAnswer(scanner, "Enter a row number:");
-                seatNumber = getUserAnswer(scanner, "Enter a seat number in that row:");
-                scheme[rowNumber][seatNumber] = CHOSEN_SEAT;
-                ticketPrice = calculateTicketPrice(rows, seats, rowNumber);
-                printTicketPrice(ticketPrice);
+                buyTicket(scanner);
+            } else if (choice == 3) {
+                printStatistics();
             }
         } while (choice != 0);
     }
@@ -60,9 +53,9 @@ public class Cinema {
 
     public static void printScheme(char[][] scheme) {
         System.out.println("Cinema:");
-        for (int i = 0; i < scheme.length; i++) {
-            for (int j = 0; j < scheme[0].length; j++) {
-                System.out.print(scheme[i][j] + " ");
+        for (char[] row : scheme) {
+            for (char seat : row) {
+                System.out.print(seat + " ");
             }
             System.out.println();
         }
@@ -99,15 +92,48 @@ public class Cinema {
         System.out.println();
         System.out.println("1. Show the seats");
         System.out.println("2. Buy a ticket");
+        System.out.println("3. Statistics");
         System.out.println("0. Exit");
     }
 
     public static void printTicketPrice(int ticketPrice) {
-        System.out.println("Ticket price: $" + ticketPrice);
+        System.out.println(String.format("Ticket price: $%d", ticketPrice));
     }
 
     public static void printTotalIncome(int income) {
         System.out.println("Total income:");
-        System.out.println("$" + income);
+        System.out.println(String.format("$%d", income));
+    }
+
+    public static void buyTicket(Scanner scanner) {
+        System.out.println();
+        boolean invalidInput = true;
+        int rowNumber = 0;
+        int seatNumber = 0;
+        while (invalidInput) {
+            rowNumber = getUserAnswer(scanner, "Enter a row number:");
+            seatNumber = getUserAnswer(scanner, "Enter a seat number in that row:");
+            if (rowNumber < 1 || rowNumber > rows || seatNumber < 1 || seatNumber > seats) {
+                System.out.println("Wrong input!");
+                System.out.println();
+            } else if (scheme[rowNumber][seatNumber] == CHOSEN_SEAT) {
+                System.out.println("That ticket has already been purchased!");
+                System.out.println();
+            } else {
+                invalidInput = false;
+            }
+        }
+        scheme[rowNumber][seatNumber] = CHOSEN_SEAT;
+        purchasedTickets++;
+        income += calculateTicketPrice(rows, seats, rowNumber);
+        printTicketPrice(calculateTicketPrice(rows, seats, rowNumber));
+    }
+
+    public static void printStatistics() {
+        System.out.println();
+        System.out.println(String.format("Number of purchased tickets: %d", purchasedTickets));
+        System.out.println(String.format("Percentage: %.2f%%", ((double)purchasedTickets / (rows * seats)) * 100));
+        System.out.println(String.format("Current income: $%d", income));
+        System.out.println(String.format("Total income: $%d", calculateTotalIncome(rows, seats)));
     }
 }
